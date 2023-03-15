@@ -120,6 +120,9 @@ sprites.onOverlap(SpriteKind.Enemy, SpriteKind.Projectile, function (sprite, oth
     sprites.destroy(otherSprite)
     music.play(music.melodyPlayable(music.spooky), music.PlaybackMode.UntilDone)
 })
+info.onCountdownEnd(function () {
+    sprites.destroy(RASHO_LASHER, effects.disintegrate, 2000)
+})
 scene.onOverlapTile(SpriteKind.Player, sprites.builtin.forestTiles10, function (sprite, location) {
     controller.moveSprite(ZelLink, 0, 0)
     tiles.setCurrentTilemap(tilemap`level9`)
@@ -168,6 +171,11 @@ scene.onOverlapTile(SpriteKind.Player, sprites.builtin.forestTiles10, function (
 scene.onHitWall(SpriteKind.Arrow, function (sprite, location) {
     sprites.destroy(sprite, effects.disintegrate, 100)
 })
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Arrow, function (sprite, otherSprite) {
+    info.changeLifeBy(-1)
+    music.play(music.createSoundEffect(WaveShape.Square, 200, 1, 255, 0, 100, SoundExpressionEffect.None, InterpolationCurve.Curve), music.PlaybackMode.UntilDone)
+    pause(2000)
+})
 info.onScore(10, function () {
     Le_go = 0
     tiles.setCurrentTilemap(tilemap`level6`)
@@ -204,10 +212,10 @@ sprites.onOverlap(SpriteKind.Arrow, SpriteKind.Player, function (sprite, otherSp
     pause(2000)
 })
 let METEOR_SMASH: Sprite = null
-let RASHO_LASHER: Sprite = null
 let Miau: Sprite = null
 let Morbius20: Sprite = null
 let Morbius: Sprite = null
+let RASHO_LASHER: Sprite = null
 let fium: Sprite = null
 let Cock_blast: Sprite = null
 let MorbiusHp = 0
@@ -424,23 +432,19 @@ game.onUpdateInterval(15000, function () {
             3 3 3 2 2 2 2 2 2 2 2 2 2 3 3 3 
             . 3 3 2 2 2 2 2 2 2 2 2 2 3 3 . 
             . . 2 2 2 2 2 2 2 2 2 2 2 2 . . 
-            `, SpriteKind.Enemy)
+            `, SpriteKind.Arrow)
         RASHO_LASHER.setScale(5, ScaleAnchor.Bottom)
         RASHO_LASHER.setPosition(Morbius.x, Morbius.y + 50)
-        for (let index = 0; index < 6; index++) {
-            music.play(music.melodyPlayable(music.pewPew), music.PlaybackMode.InBackground)
-            music.play(music.melodyPlayable(music.beamUp), music.PlaybackMode.InBackground)
-            music.play(music.createSoundEffect(WaveShape.Noise, 3240, 3206, 247, 247, 1198, SoundExpressionEffect.Vibrato, InterpolationCurve.Curve), music.PlaybackMode.InBackground)
-        }
-        music.stopAllSounds()
+        info.startCountdown(5)
     }
 })
 forever(function () {
     if (Le_go == 2 || Le_go == -1) {
         Morbius20.setPosition(Morbius.x - 3, Morbius.y - 5)
         if (MorbiusHp == 0) {
-            scene.cameraFollowSprite(Morbius)
+            scene.centerCameraAt(Morbius.x, Morbius.y)
             Morbius.sayText("Shit", 5000, false)
+            pause(5000)
             sprites.destroy(Morbius, effects.spray, 2000)
             game.gameOver(true)
         }
